@@ -21,3 +21,12 @@ https://network.ntust.edu.tw/
 
 is Your "NTUST IP address".
 
+Update Delta only when last_total != cur_total
+
+=======================================
+
+11/24 12:55 a.m
+
+stop timer when  "Exceeding Limit"
+
+exit app when timer stop
