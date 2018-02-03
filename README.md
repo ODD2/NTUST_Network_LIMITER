@@ -30,3 +30,12 @@ Update Delta only when last_total != cur_total
 stop timer when  "Exceeding Limit"
 
 exit app when timer stop
+
+=======================================
+
+02/03/2018 03:49 p.m
+
+大改版V1.0
+新增無限制流量的模式:將流量限制設成0
+版面重製
+自動偵測台科a網路卡，使用者不需要自己選擇網卡了!
