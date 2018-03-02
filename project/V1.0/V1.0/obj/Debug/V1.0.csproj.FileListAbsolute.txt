@@ -7,3 +7,12 @@ c:\users\od\documents\visual studio 2015\Projects\V1.0\V1.0\obj\Debug\V1._0.Prop
 c:\users\od\documents\visual studio 2015\Projects\V1.0\V1.0\obj\Debug\V1.0.csproj.GenerateResource.Cache
 c:\users\od\documents\visual studio 2015\Projects\V1.0\V1.0\obj\Debug\V1.0.exe
 c:\users\od\documents\visual studio 2015\Projects\V1.0\V1.0\obj\Debug\V1.0.pdb
+C:\Users\OD\Documents\sourcetree\NTUST_Network_LIMITER\project\V1.0\V1.0\bin\Debug\V1.0.exe.config
+C:\Users\OD\Documents\sourcetree\NTUST_Network_LIMITER\project\V1.0\V1.0\bin\Debug\V1.0.exe
+C:\Users\OD\Documents\sourcetree\NTUST_Network_LIMITER\project\V1.0\V1.0\bin\Debug\V1.0.pdb
+C:\Users\OD\Documents\sourcetree\NTUST_Network_LIMITER\project\V1.0\V1.0\obj\Debug\V1.0.csprojResolveAssemblyReference.cache
+C:\Users\OD\Documents\sourcetree\NTUST_Network_LIMITER\project\V1.0\V1.0\obj\Debug\V1._0.Form1.resources
+C:\Users\OD\Documents\sourcetree\NTUST_Network_LIMITER\project\V1.0\V1.0\obj\Debug\V1._0.Properties.Resources.resources
+C:\Users\OD\Documents\sourcetree\NTUST_Network_LIMITER\project\V1.0\V1.0\obj\Debug\V1.0.csproj.GenerateResource.Cache
+C:\Users\OD\Documents\sourcetree\NTUST_Network_LIMITER\project\V1.0\V1.0\obj\Debug\V1.0.exe
+C:\Users\OD\Documents\sourcetree\NTUST_Network_LIMITER\project\V1.0\V1.0\obj\Debug\V1.0.pdb

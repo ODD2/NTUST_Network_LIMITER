@@ -1,4 +1,5 @@
 ﻿#define ODDDEBUG_Lv1
+
 //#define ODDDEBUG_LV2
 using System;
 using System.Windows.Forms;
@@ -31,7 +32,7 @@ namespace V1._0
         double DeltaRunner = 0.0;
         double Start = 0.0;
 
-
+        bool unlock = false;
         public Form1()
         {
             InitializeComponent();
@@ -47,8 +48,11 @@ namespace V1._0
             //初始化
             //Textbox1的外觀
             textBox1.BorderStyle = BorderStyle.Fixed3D;
+            double textBox1_offsetY = 17.727272727272 * 6;
 
             label1.Text += computerProperties.HostName + "." + computerProperties.DomainName;
+
+
             //顯示沒有網卡
             if (nics == null || nics.Length < 1)
             {
@@ -67,6 +71,7 @@ namespace V1._0
             {
                 label1.Text += "  (" + adap_index + ")->" + i.Name + "\n";
                 adap_index += 1;
+                textBox1_offsetY += 17.727272727272;
             }
             label1.Text += "==========================================\n";
 
@@ -82,6 +87,7 @@ namespace V1._0
                         label1.Text += "找到台科網卡:\n";
                         label1.Text += "    [" + i.Name + "]----[台科網路]\n";
                         adapter = i;
+                        unlock = true;
                         break;
                     }
                 }
@@ -101,6 +107,7 @@ namespace V1._0
             //輸入流量
             label1.Text += "流量限制:                     (輸入完請按enter)\n";
             label1.Text += "==========================================\n";
+            textBox1.Location =new  System.Drawing.Point(79,(int)textBox1_offsetY);
             textBox1.Visible = true;
 
 
@@ -132,8 +139,11 @@ namespace V1._0
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            BackupStatisticToFile();
-            WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "Application Closed!");
+            if (unlock)
+            {
+                BackupStatisticToFile();
+                WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "Application Closed!");
+            }
         }
 
         private void Form1_SizeChanged(object sender, EventArgs e)
