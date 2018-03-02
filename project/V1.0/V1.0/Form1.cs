@@ -43,6 +43,7 @@ namespace V1._0
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
 
             //初始化
@@ -120,7 +121,6 @@ namespace V1._0
 #if (ODDDEBUG_Lv1)
             WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "Initialized Runner:" + Runner.ToString() + "\n");
 #endif
-
             //更新本機網卡的流量基礎
             InitInterfaceStatisticBase();
 
@@ -303,38 +303,47 @@ namespace V1._0
         /// 
         private void RunnerInitializer()
         {
-            double http = UpdateRealTotalFromhttp();
+            double http = UpdateRealTotalFromHttp();
             double file = UpdateRealTotalFromFile();
             Runner = file > http ? file : http;
         }
 
-        private double UpdateRealTotalFromhttp()
+        private double UpdateRealTotalFromHttp()
         {
-            WebClient client = new WebClient();
-
-            Stream data = client.OpenRead("https://network.ntust.edu.tw/");
-            StreamReader reader = new StreamReader(data);
-            string s = reader.ReadToEnd();
-            data.Close();
-            reader.Close();
-            int index = s.IndexOf("總計");
-            for (int i = 0; i < 4; i++)
+            try
             {
-                index = s.IndexOf("<td>", index);
-                index += 4;
-            }
+                WebClient client = new WebClient();
 
-            while (!(s[index] >= 48 && s[index] <= 57)) index += 1;
-            string total_KB_string = "";
-            while (s[index] != ' ')
-            {
-                if (s[index] >= '0' && s[index] <= '9')
+                Stream data = client.OpenRead("https://network.ntust.edu.tw/");
+                StreamReader reader = new StreamReader(data);
+                string s = reader.ReadToEnd();
+                data.Close();
+                reader.Close();
+                int index = s.IndexOf("總計");
+                for (int i = 0; i < 4; i++)
                 {
-                    total_KB_string += s[index];
+                    index = s.IndexOf("<td>", index);
+                    index += 4;
                 }
-                index += 1;
+
+                while (!(s[index] >= 48 && s[index] <= 57)) index += 1;
+                string total_KB_string = "";
+                while (s[index] != ' ')
+                {
+                    if (s[index] >= '0' && s[index] <= '9')
+                    {
+                        total_KB_string += s[index];
+                    }
+                    index += 1;
+                }
+                return Convert.ToDouble(total_KB_string) / (1024 * 1024);
             }
-            return Convert.ToDouble(total_KB_string) / (1024 * 1024);
+            catch(Exception e)
+            {
+                WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "UpdateRealTotalFromHttp->Exception:"+e.ToString()+"\n");
+                return 0.0;
+            }
+            
         }
 
         private double UpdateRealTotalFromFile()
@@ -398,6 +407,15 @@ namespace V1._0
         {
             using (StreamWriter sw = File.AppendText(folder_location + "LOG.txt"))
             {
+                int index = 0;
+                if (msg[msg.Length - 1] != '\n') { msg.Insert(msg.Length, "\n"); };
+                while ((index = msg.IndexOf('\n',index))!=-1)
+                {
+                    if (index == msg.Length - 1) break;
+                    msg = msg.Insert(index+1,"     ");
+                    index += 5;
+                }
+               
                 sw.Write(time + "\n" + "     " + msg);
             }
         }
