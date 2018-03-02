@@ -43,11 +43,9 @@ namespace V1._0
         private void Form1_Load(object sender, EventArgs e)
         {
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
-
             //初始化
             //Textbox1的外觀
             textBox1.BorderStyle = BorderStyle.Fixed3D;
-
             label1.Text += computerProperties.HostName + "." + computerProperties.DomainName;
             //顯示沒有網卡
             if (nics == null || nics.Length < 1)
@@ -56,8 +54,6 @@ namespace V1._0
                 label1.Text += NoNICmsg;
                 return;
             }
-
-
             label1.Text += "的網卡資訊:(找到" + nics.Length + "張網卡)\n";
             int adap_index = 1;
 
@@ -69,58 +65,20 @@ namespace V1._0
                 adap_index += 1;
             }
             label1.Text += "==========================================\n";
-
             //偵測台科網路用的網卡
             adap_index = 0;
             foreach (NetworkInterface i in nics)
             {
-
-                if (i.OperationalStatus.ToString() == "Up")
-                {
-                    if (String.Compare(i.GetIPProperties().UnicastAddresses[1].Address.ToString().Substring(0, 7), "140.118") == 0)
-                    {
-                        label1.Text += "找到台科網卡:\n";
-                        label1.Text += "    [" + i.Name + "]----[台科網路]\n";
-                        adapter = i;
-                        break;
-                    }
-                }
-                adap_index += 1;
+                label1.Text += "找到台科網卡:\n";
+                label1.Text += "    [" + i.Name + "]----[台科網路]\n";
+                adapter = i;
+                break;
             }
             label1.Text += "==========================================\n";
-
-
-            //沒有找到台科網卡的狀況
-            if (adap_index == nics.Length)
-            {
-                label1.Text += NoNICmsg;
-                return;
-            }
-
-
             //輸入流量
             label1.Text += "流量限制:                     (輸入完請按enter)\n";
             label1.Text += "==========================================\n";
-            textBox1.Visible = true;
-
-
-            //確保需要的檔案存在
-            CheckFileFolder();
-
-
-            //到台科流量網站以及本地檔案更新目前總流量
-            RunnerInitializer();
-#if (ODDDEBUG_Lv1)
-            WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "Initialized Runner:" + Runner.ToString() + "\n");
-#endif
-
-            //更新本機網卡的流量基礎
-            InitInterfaceStatisticBase();
-
-            //啟用限流核心
-            timer1.Enabled = true;
-
-            
+            textBox1.Visible = true;  
             //啟動下面板的顯示
             label5.Visible = true;
             label6.Visible = true;
