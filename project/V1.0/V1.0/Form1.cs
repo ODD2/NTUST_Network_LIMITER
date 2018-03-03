@@ -108,7 +108,7 @@ namespace V1._0
             //輸入流量
             label1.Text += "流量限制:                     (輸入完請按enter)\n";
             label1.Text += "==========================================\n";
-            textBox1.Location =new  System.Drawing.Point(79,(int)textBox1_offsetY);
+            textBox1.Location = new System.Drawing.Point(79, (int)textBox1_offsetY);
             textBox1.Visible = true;
 
 
@@ -127,7 +127,7 @@ namespace V1._0
             //啟用限流核心
             timer1.Enabled = true;
 
-            
+
             //啟動下面板的顯示
             label5.Visible = true;
             label6.Visible = true;
@@ -338,12 +338,12 @@ namespace V1._0
                 }
                 return Convert.ToDouble(total_KB_string) / (1024 * 1024);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "UpdateRealTotalFromHttp->Exception:"+e.ToString()+"\n");
+                WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "UpdateRealTotalFromHttp->Exception:" , e.ToString() + "\n");
                 return 0.0;
             }
-            
+
         }
 
         private double UpdateRealTotalFromFile()
@@ -403,22 +403,34 @@ namespace V1._0
             }
         }
 
-        private void WriteDebugToFileLog(string time, string msg)
+        private void WriteDebugToFileLog(string title, string msg)
         {
             using (StreamWriter sw = File.AppendText(folder_location + "LOG.txt"))
             {
-                int index = 0;
-                if (msg[msg.Length - 1] != '\n') { msg.Insert(msg.Length, "\n"); };
-                while ((index = msg.IndexOf('\n',index))!=-1)
-                {
-                    if (index == msg.Length - 1) break;
-                    msg = msg.Insert(index+1,"     ");
-                    index += 5;
-                }
-               
-                sw.Write(time + "\n" + "     " + msg);
+                sw.Write(title+ "\n" + "\t" +StringFMT_TAB(msg));
             }
         }
+
+        private void WriteDebugToFileLog(string time, string title,string msg)
+        {
+            using (StreamWriter sw = File.AppendText(folder_location + "LOG.txt"))
+            {
+                sw.Write(time + "\n" + "\t" + title+"\n\t\t"+StringFMT_TAB(StringFMT_TAB(msg)));
+            }
+        }
+
+        private string StringFMT_TAB(string msg)
+        {
+            int index = 0;
+            if (msg[msg.Length - 1] != '\n') { msg =  msg.Insert(msg.Length, "\n"); };
+            while ((index = msg.IndexOf('\n', index)) != -1)
+            {
+                if (index == msg.Length - 1) break;
+                msg = msg.Insert(++index, "\t");
+            }
+            return msg;
+        }
+
 
         /// <summary>
         /// Interface Control
@@ -433,7 +445,6 @@ namespace V1._0
             startInfo.Arguments = "/C netsh interface set interface name=\"" + name + "\" admin=DISABLE";
             process.StartInfo = startInfo;
             process.Start();
-
         }
 
         private void EnableInterface(string name)
@@ -445,7 +456,6 @@ namespace V1._0
             startInfo.Arguments = "/C netsh interface set interface name=\"" + name + "\" admin=ENABLE";
             process.StartInfo = startInfo;
             process.Start();
-
         }
 
 
@@ -462,8 +472,8 @@ namespace V1._0
             }
             else if (notifyIcon1.Visible == true)
             {
-                notifyIcon1.Text = "限制: " + textBox1.Text+"(GB)\n"+
-                                   "目前: " + Math.Round(Runner, 2).ToString()+"(GB)";
+                notifyIcon1.Text = "限制: " + textBox1.Text + "(GB)\n" +
+                                   "目前: " + Math.Round(Runner, 2).ToString() + "(GB)";
             }
         }
 
@@ -475,25 +485,26 @@ namespace V1._0
         /// <returns></returns>
         private DateTime GetNetworkTime()
         {
-            //default Windows time server
-            const string ntpServer = "time.windows.com";
-
-            // NTP message size - 16 bytes of the digest (RFC 2030)
-            var ntpData = new byte[48];
-
-            //Setting the Leap Indicator, Version Number and Mode values
-            ntpData[0] = 0x1B; //LI = 0 (no warning), VN = 3 (IPv4 only), Mode = 3 (Client Mode)
-
-            var addresses = Dns.GetHostEntry(ntpServer).AddressList;
-
-            //The UDP port number assigned to NTP is 123
-            var ipEndPoint = new IPEndPoint(addresses[0], 123);
-            //NTP uses UDP
-
-            using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
+            try
             {
-                try
+                //default Windows time server
+                const string ntpServer = "time.windows.com";
+
+                // NTP message size - 16 bytes of the digest (RFC 2030)
+                var ntpData = new byte[48];
+
+                //Setting the Leap Indicator, Version Number and Mode values
+                ntpData[0] = 0x1B; //LI = 0 (no warning), VN = 3 (IPv4 only), Mode = 3 (Client Mode)
+
+                var addresses = Dns.GetHostEntry(ntpServer).AddressList;
+
+                //The UDP port number assigned to NTP is 123
+                var ipEndPoint = new IPEndPoint(addresses[0], 123);
+                //NTP uses UDP
+
+                using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
                 {
+
                     socket.Connect(ipEndPoint);
 
                     //Stops code hang if NTP is blocked
@@ -503,33 +514,32 @@ namespace V1._0
                     socket.Receive(ntpData);
                     socket.Close();
                 }
-                catch (Exception e)
-                {
-                    WriteDebugToFileLog("Error to Catch Network Time!!" + "\n");
-                    return NetCurrentTime;
-                }
+
+                //Offset to get to the "Transmit Timestamp" field (time at which the reply 
+                //departed the server for the client, in 64-bit timestamp format."
+                const byte serverReplyTime = 40;
+
+                //Get the seconds part
+                ulong intPart = BitConverter.ToUInt32(ntpData, serverReplyTime);
+
+                //Get the seconds fraction
+                ulong fractPart = BitConverter.ToUInt32(ntpData, serverReplyTime + 4);
+
+                //Convert From big-endian to little-endian
+                intPart = SwapEndianness(intPart);
+                fractPart = SwapEndianness(fractPart);
+
+                var milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
+
+                //**UTC** time
+                var networkDateTime = (new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds((long)milliseconds);
+                return networkDateTime.ToLocalTime();
             }
-
-            //Offset to get to the "Transmit Timestamp" field (time at which the reply 
-            //departed the server for the client, in 64-bit timestamp format."
-            const byte serverReplyTime = 40;
-
-            //Get the seconds part
-            ulong intPart = BitConverter.ToUInt32(ntpData, serverReplyTime);
-
-            //Get the seconds fraction
-            ulong fractPart = BitConverter.ToUInt32(ntpData, serverReplyTime + 4);
-
-            //Convert From big-endian to little-endian
-            intPart = SwapEndianness(intPart);
-            fractPart = SwapEndianness(fractPart);
-
-            var milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
-
-            //**UTC** time
-            var networkDateTime = (new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds((long)milliseconds);
-
-            return networkDateTime.ToLocalTime();
+            catch (Exception e)
+            {
+                WriteDebugToFileLog("GetNetworkTime->Exception\n",e.ToString() + "\n");
+                return NetCurrentTime;
+            }
         }
 
         private uint SwapEndianness(ulong x)
