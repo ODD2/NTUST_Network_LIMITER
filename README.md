@@ -1,12 +1,12 @@
 # NTUST_Network_LIMITER
+下載位址:
+	https://github.com/ODD2/NTUST_Network_LIMITER/raw/master/project/V1.0/V1.0/bin/Debug/V1.0.exe
 
 這個軟體只適用於台科網路系統
 
 操作流程:
 	
 		1.下載軟體
-			
-				網址: https://github.com/ODD2/NTUST_Network_LIMITER/raw/master/project/V1.0/V1.0/bin/Debug/V1.0.exe
 
 		2.執行軟體
 
@@ -15,7 +15,6 @@
 		4.完成
 
 我的email: vhanxtreme@gmail.com 發現問題或不能運行都歡迎你寄email :)
-
 ==============02/03/2018==============
 大改版V1.0
 
