@@ -4,7 +4,7 @@
 
 操作流程:
 	
-		1.下載軟體
+		1.下載軟體->網址:https://github.com/ODD2/NTUST_Network_LIMITER/raw/master/project/V1.0/V1.0/bin/Debug/V1.0.exe
 
 		2.執行軟體
 
