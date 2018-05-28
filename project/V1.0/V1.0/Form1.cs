@@ -31,8 +31,9 @@ namespace V1._0
         double Runner = 0.0;
         double DeltaRunner = 0.0;
         double Start = 0.0;
-
         bool unlock = false;
+
+
         public Form1()
         {
             InitializeComponent();
@@ -104,8 +105,9 @@ namespace V1._0
                 return;
             }
 
+            WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "Application Started!");
 
-            //輸入流量
+            //輸入流量方塊
             label1.Text += "流量限制:                     (輸入完請按enter)\n";
             label1.Text += "==========================================\n";
             textBox1.Location = new System.Drawing.Point(79, (int)textBox1_offsetY);
@@ -118,6 +120,8 @@ namespace V1._0
 
             //到台科流量網站以及本地檔案更新目前總流量
             RunnerInitializer();
+            BackupStatisticToFile();
+
 #if (ODDDEBUG_Lv1)
             WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "Initialized Runner:" + Runner.ToString() + "\n");
 #endif
@@ -220,18 +224,28 @@ namespace V1._0
             }
         }
 
+        private void textBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            textBox1.SelectAll();
+        }
+
 
         /// <summary>
         /// TIMER(CORE)
         /// </summary>
-        int tick = 0;
         private void timer1_Tick(object sender, EventArgs e)
         {
+            
+            NetCurrentTime= NetCurrentTime.AddSeconds(1);
+            
             //Initialize Runner Every Time A Day Passed.
-            if (NetCurrentTime.Hour == 23 && (NetCurrentTime.Minute + (NetCurrentTime.Second + tick) / 60) == 59 && (NetCurrentTime.Second + tick) % 60 == 59)
+            if (NetCurrentTime.Hour == 0 && NetCurrentTime.Minute == 0 && NetCurrentTime.Second == 0)
             {
-                Runner = 0.0;
+                UpdateInterfaceStatistics();
                 WriteDebugToFileLog(GetNetworkTime().ToString(debugTimefmt), "Day Changed!");
+                BackupStatisticToFile();
+                Runner = 0.0;
+                return;
             }
 
             //Update Runner And DeltaRunner
@@ -255,12 +269,10 @@ namespace V1._0
 
 
 
-            //tick 以秒計算，每30秒備份到檔案裡.
-            tick += 1;
-            if (tick % 1800 == 0 || DeltaRunner >= 10000.0)
+            //每30秒備份到檔案裡.
+            if (NetCurrentTime.Second==30 || DeltaRunner >= 10000.0)
             {
                 BackupStatisticToFile();
-                tick = 0;
             }
         }
 
@@ -355,7 +367,6 @@ namespace V1._0
 
 
             //如果不是新建立的檔案
-
             NetCurrentTime = GetNetworkTime();
             if (String.Compare(NetCurrentTime.ToString(customTimefmt), STAT_TXT[0]) < 0)
             {
@@ -478,7 +489,6 @@ namespace V1._0
         }
 
 
-
         /// <summary>
         /// Time Server Get Time;
         /// </summary>
@@ -537,7 +547,7 @@ namespace V1._0
             }
             catch (Exception e)
             {
-                WriteDebugToFileLog("GetNetworkTime->Exception\n",e.ToString() + "\n");
+                WriteDebugToFileLog("GetNetworkTime->Exception",e.ToString() + "\n");
                 return NetCurrentTime;
             }
         }
@@ -550,6 +560,6 @@ namespace V1._0
                            ((x & 0xff000000) >> 24));
         }
 
-        
+      
     }
 }
